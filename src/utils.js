@@ -5,7 +5,7 @@ const Event = new EventEmitter()
 
 export const Api = axios.create({
   baseURL: 'http://10.0.2.2:3000/api/v1',
-  timeout: 40000,
+  timeout: 4000,
   headers: {
     version: '1.0.0',
   },

@@ -2,7 +2,8 @@ import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
 //import { createWhitelistFilter } from 'redux-persist-transform-filter'
-import { AsyncStorage } from 'react-native'
+import { createReactNavigationReduxMiddleware } from 'react-navigation-redux-helpers'
+import AsyncStorage from '@react-native-community/async-storage'
 import autoMergeLevel2 from 'redux-persist/es/stateReconciler/autoMergeLevel2'
 
 import rootReducer from './reducers'
@@ -12,14 +13,18 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   stateReconciler: autoMergeLevel2,
-  whitelist: [],
+  whitelist: ['me'],
   blacklist: [],
   transforms: [],
 }
 
 const sagaMiddleWare = createSagaMiddleware()
 
-const middleware = [sagaMiddleWare].filter(x => !!x)
+const navigationMiddleWare = createReactNavigationReduxMiddleware(
+  state => state.navigation,
+)
+
+const middleware = [sagaMiddleWare, navigationMiddleWare].filter(x => !!x)
 
 const persistReducers = persistReducer(persistConfig, rootReducer)
 

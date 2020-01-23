@@ -1,12 +1,17 @@
 export const ME_ACTIONS = Object.freeze({
   SET_DATA: 'myapp/me/set-data',
+  CUSTOM_SET: 'myapp/me/custom-set',
   LOGIN_REQUEST: 'myapp/me/login/request',
-  LOGIN_RESPONSE: 'myapp/me/login/response',
+  REGISTER_REQUEST: 'myapp/me/register/request',
 })
 
 export const meActions = Object.freeze({
-  setData: (field, value) => ({
+  setData: value => ({
     type: ME_ACTIONS.SET_DATA,
+    value,
+  }),
+  customSet: (field, value) => ({
+    type: ME_ACTIONS.CUSTOM_SET,
     field,
     value,
   }),
@@ -14,8 +19,8 @@ export const meActions = Object.freeze({
     type: ME_ACTIONS.LOGIN_REQUEST,
     value,
   }),
-  loginResponse: value => ({
-    type: ME_ACTIONS.LOGIN_RESPONSE,
+  registerRequest: value => ({
+    type: ME_ACTIONS.REGISTER_REQUEST,
     value,
   }),
 })
@@ -31,17 +36,19 @@ const initState = {
 
 const reducer = (state = initState, { type, value, field }) => {
   switch (type) {
-    case ME_ACTIONS.SET_DATA:
+    case ME_ACTIONS.CUSTOM_SET:
       return {
         ...state,
         [field]: value,
+        loading: false,
       }
     case ME_ACTIONS.LOGIN_REQUEST:
+    case ME_ACTIONS.REGISTER_REQUEST:
       return {
         ...state,
         loading: true,
       }
-    case ME_ACTIONS.LOGIN_RESPONSE:
+    case ME_ACTIONS.SET_DATA:
       return {
         ...state,
         id: value.id,
