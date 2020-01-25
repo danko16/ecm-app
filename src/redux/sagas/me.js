@@ -7,9 +7,11 @@ import authApi from '../api/auth'
 function* login({ value }) {
   try {
     const payload = {
-      email_phone: value.email_phone,
-      password: value.password,
-      provider: value.provider,
+      data: {
+        email_phone: value.email_phone,
+        password: value.password,
+        provider: value.provider,
+      },
     }
 
     const {
@@ -31,9 +33,8 @@ function* register({ value }) {
       password: value.password,
       email: value.email,
       phone: value.phone,
-      birthday: value.birthday,
+      provider: 'local',
     }
-
     const {
       data: { data },
     } = yield call(authApi.register, payload)

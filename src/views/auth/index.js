@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   AppRegistry,
   Animated,
-  //KeyboardAwareScrollView,
 } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -18,7 +17,7 @@ import { headerActions } from '../../redux/reducers/header'
 import styles from './styles'
 
 const mapStateToProps = state => ({
-  error: state.me.message,
+  message: state.me.message,
 })
 
 const mapDispatchToProps = dispatch =>
@@ -37,9 +36,9 @@ const AuthScreen = props => {
     navigation,
     loginRequest,
     customSet,
-    //registerRequest,
+    registerRequest,
     headerPosition,
-    error,
+    message,
   } = props
 
   let swiper = useRef()
@@ -59,8 +58,17 @@ const AuthScreen = props => {
   const [registerData, setRegisterData] = useState({
     full_name: '',
     email: '',
-    telephone: '',
-    Birthday: '',
+    phone: '',
+    password: '',
+  })
+  const [loginError, setLoginError] = useState({
+    email_phone: '',
+    password: '',
+  })
+  const [registerError, setRegisterError] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
     password: '',
   })
 
@@ -76,11 +84,182 @@ const AuthScreen = props => {
         swiper.scrollBy(targetIndex)
       }
     }
-    if (error) {
-      Toast.show(error, Toast.LONG)
+    if (message) {
+      if (message === 'User not found!') {
+        setLoginError(prevState => ({
+          ...prevState,
+          email_phone: message,
+        }))
+      }
+
+      if (message === 'Wrong password') {
+        setLoginError(prevState => ({
+          ...prevState,
+          password: message,
+        }))
+      }
+
+      if (message === 'Email and Phone already exist') {
+        setRegisterError(prevState => ({
+          ...prevState,
+          email: 'Email already exist',
+        }))
+        setRegisterError(prevState => ({
+          ...prevState,
+          phone: 'Phone number already exist',
+        }))
+      } else if (message === 'Email already exist') {
+        setRegisterError(prevState => ({
+          ...prevState,
+          email: message,
+        }))
+      } else if (message === 'Phone number already exist') {
+        setRegisterError(prevState => ({
+          ...prevState,
+          phone: message,
+        }))
+      }
+
+      Toast.show(message, Toast.LONG)
       customSet('message', null)
     }
-  }, [navigation.state, error])
+  }, [navigation.state, message])
+
+  function validateLogin() {
+    let isValidate = true
+    let phoneno = /^([0]{1})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/
+    // eslint-disable-next-line
+    let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+    if (!loginData.email_phone) {
+      setLoginError(prevState => ({
+        ...prevState,
+        email_phone: 'email or telphone cannot be empty',
+      }))
+      isValidate = false
+    } else if (
+      !loginData.email_phone.match(phoneno) &&
+      !loginData.email_phone.match(mailformat)
+    ) {
+      setLoginError(prevState => ({
+        ...prevState,
+        email_phone: 'must be phone number or email format',
+      }))
+      isValidate = false
+    } else {
+      setLoginError(prevState => ({
+        ...prevState,
+        password: '',
+      }))
+    }
+
+    if (loginData.password.length < 5) {
+      setLoginError(prevState => ({
+        ...prevState,
+        password: 'password must be at least 5 chars long',
+      }))
+      isValidate = false
+    } else {
+      setLoginError(prevState => ({
+        ...prevState,
+        password: '',
+      }))
+    }
+
+    return isValidate
+  }
+
+  function validateRegister() {
+    let phoneno = /^([0]{1})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/
+    let nameFormat = /^[a-zA-Z ]+$/
+    // eslint-disable-next-line
+    let mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    let lowerCaseLetters = /[a-z]/g
+    let numbers = /[0-9]/g
+
+    let isValidate = true
+
+    if (registerData.full_name.length < 5) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        full_name: 'name must be at least 5 chars long',
+      }))
+    } else if (!registerData.full_name.match(nameFormat)) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        full_name: 'name must contain only letter',
+      }))
+    } else {
+      setRegisterError(prevState => ({
+        ...prevState,
+        full_name: '',
+      }))
+    }
+
+    if (!registerData.email) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        email: 'email cannot be empty',
+      }))
+      isValidate = false
+    } else if (!registerData.email.match(mailformat)) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        email: 'must be email format',
+      }))
+      isValidate = false
+    } else {
+      setLoginError(prevState => ({
+        ...prevState,
+        password: '',
+      }))
+    }
+
+    if (!registerData.phone) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        phone: 'phone number cannot be empty',
+      }))
+      isValidate = false
+    } else if (!registerData.phone.match(phoneno)) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        phone: 'must be phone number format',
+      }))
+      isValidate = false
+    } else {
+      setLoginError(prevState => ({
+        ...prevState,
+        password: '',
+      }))
+    }
+
+    if (registerData.password.length < 5) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        password: 'password must be at least 5 chars long',
+      }))
+      isValidate = false
+    } else if (!registerData.password.match(lowerCaseLetters)) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        password: 'password must contain a lower case',
+      }))
+      isValidate = false
+    } else if (!registerData.password.match(numbers)) {
+      setRegisterError(prevState => ({
+        ...prevState,
+        password: 'password must contain a number',
+      }))
+    } else {
+      setRegisterError(prevState => ({
+        ...prevState,
+        password: '',
+      }))
+    }
+
+    return isValidate
+  }
 
   function onChangeText(value, mode, name) {
     if (mode === 'login') {
@@ -97,14 +276,13 @@ const AuthScreen = props => {
   }
 
   function handleSendData(mode) {
-    if (mode === 'login') {
+    if (mode === 'login' && validateLogin()) {
       loginRequest({
         ...loginData,
         provider: 'local',
       })
-    } else if (mode === 'register') {
-      //eslint-disable next-line
-      console.log(registerData)
+    } else if (mode === 'register' && validateRegister()) {
+      registerRequest(registerData)
     }
   }
 
@@ -131,15 +309,30 @@ const AuthScreen = props => {
           <InputCard
             mode="register"
             placeholder="Full Name"
+            keyboardType="default"
             setIsFocus={setIsFocusRegister}
+            clearError={setRegisterError}
             setInput="full_name"
             isFocus={isFocusRegister.full_name}
             onChangeText={onChangeText}
           />
+          {registerError.full_name ? (
+            <Text
+              style={{
+                marginBottom: -7,
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {registerError.full_name}
+            </Text>
+          ) : null}
           <InputCard
             mode="register"
             placeholder="Email"
+            keyboardType="email-address"
             setIsFocus={setIsFocusRegister}
+            clearError={setRegisterError}
             setInput="email"
             isFocus={isFocusRegister.email}
             onChangeText={onChangeText}
@@ -147,32 +340,47 @@ const AuthScreen = props => {
               marginTop: 15,
             }}
           />
+          {registerError.email ? (
+            <Text
+              style={{
+                marginBottom: -7,
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {registerError.email}
+            </Text>
+          ) : null}
           <InputCard
             mode="register"
-            placeholder="Telephone"
+            placeholder="phone"
+            keyboardType="phone-pad"
             setIsFocus={setIsFocusRegister}
-            setInput="telephone"
-            isFocus={isFocusRegister.telephone}
+            clearError={setRegisterError}
+            setInput="phone"
+            isFocus={isFocusRegister.phone}
             onChangeText={onChangeText}
             customStyles={{
               marginTop: 15,
             }}
           />
-          <InputCard
-            mode="register"
-            placeholder="Birthday"
-            setIsFocus={setIsFocusRegister}
-            setInput="birthday"
-            isFocus={isFocusRegister.birthday}
-            onChangeText={onChangeText}
-            customStyles={{
-              marginTop: 15,
-            }}
-          />
+          {registerError.phone ? (
+            <Text
+              style={{
+                marginBottom: -7,
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {registerError.phone}
+            </Text>
+          ) : null}
           <InputCard
             mode="register"
             placeholder="Password"
+            keyboardType="default"
             setIsFocus={setIsFocusRegister}
+            clearError={setRegisterError}
             setInput="password"
             isFocus={isFocusRegister.password}
             onChangeText={onChangeText}
@@ -180,6 +388,17 @@ const AuthScreen = props => {
               marginTop: 15,
             }}
           />
+          {registerError.password ? (
+            <Text
+              style={{
+                marginBottom: -10,
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {registerError.password}
+            </Text>
+          ) : null}
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -191,23 +410,48 @@ const AuthScreen = props => {
         <View style={styles.slide2}>
           <InputCard
             mode="login"
-            placeholder="Email/Telepon"
+            placeholder="Email/phone"
             setIsFocus={setIsFocusLogin}
+            clearError={setLoginError}
             setInput="email_phone"
+            keyboardType="default"
             isFocus={isFocusLogin.email_phone}
             onChangeText={onChangeText}
           />
+          {loginError.email_phone ? (
+            <Text
+              style={{
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {loginError.email_phone}
+            </Text>
+          ) : null}
           <InputCard
             mode="login"
             placeholder="Password"
             setIsFocus={setIsFocusLogin}
+            clearError={setLoginError}
             setInput="password"
+            keyboardType="default"
             isFocus={isFocusLogin.password}
             onChangeText={onChangeText}
             customStyles={{
               marginTop: 15,
             }}
           />
+          {loginError.password ? (
+            <Text
+              style={{
+                marginBottom: -10,
+                marginLeft: 32,
+                alignSelf: 'flex-start',
+                color: 'red',
+              }}>
+              {loginError.password}
+            </Text>
+          ) : null}
           <TouchableOpacity
             style={styles.button}
             onPress={() => {

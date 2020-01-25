@@ -29,7 +29,12 @@ const initState = {
   id: null,
   full_name: null,
   email: null,
+  phone: null,
   access_token: null,
+  refresh_token: null,
+  client_id: null,
+  client_secret: null,
+  provider: null,
   loading: null,
   message: null,
 }
@@ -54,7 +59,12 @@ const reducer = (state = initState, { type, value, field }) => {
         id: value.id,
         full_name: value.full_name,
         email: value.email,
+        phone: value.phone,
         access_token: value.access_token,
+        refresh_token: value.refresh_token,
+        client_id: value.client_id,
+        client_secret: value.client_secret,
+        provider: value.provider,
         loading: false,
       }
     default:

@@ -13,6 +13,8 @@ const InputCard = props => {
     setInput,
     onChangeText,
     customStyles,
+    clearError,
+    keyboardType,
   } = props
   return (
     <CardView
@@ -22,6 +24,8 @@ const InputCard = props => {
       cornerRadius={4}>
       <TextInput
         placeholder={placeholder}
+        secureTextEntry={setInput === 'password' ? true : false}
+        keyboardType={keyboardType}
         style={{
           borderColor: isFocus ? '#6d6de8' : '#8cdedd',
           borderBottomWidth: isFocus ? 2 : 1.5,
@@ -42,6 +46,10 @@ const InputCard = props => {
         onChangeText={
           onChangeText
             ? text => {
+                clearError(prevState => ({
+                  ...prevState,
+                  [setInput]: '',
+                }))
                 onChangeText(text, mode, setInput)
               }
             : null

@@ -3,11 +3,9 @@ import { StyleSheet } from 'react-native'
 const styles = StyleSheet.create({
   wrapper: {},
   slide1: {
-    flex: 1,
     alignItems: 'center',
   },
   slide2: {
-    flex: 1,
     alignItems: 'center',
   },
   button: {

@@ -1,4 +1,5 @@
 import { Api } from '../../utils'
+import querystring from 'querystring'
 
 export default Object.freeze({
   login: payload =>
@@ -6,7 +7,7 @@ export default Object.freeze({
       headers: { 'Content-Type': 'application/json' },
     }),
   register: payload =>
-    Api.post('/register', payload, {
-      headers: { 'Content-Type': 'application/json' },
+    Api.post('/register', querystring.stringify(payload), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     }),
 })
