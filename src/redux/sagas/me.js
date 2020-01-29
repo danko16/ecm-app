@@ -1,4 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects'
+import { NavigationActions } from 'react-navigation'
 
 import { ME_ACTIONS, meActions } from '../reducers/me'
 import { getErrorMessage } from '../../utils'
@@ -20,6 +21,12 @@ function* login({ value }) {
 
     if (data) {
       yield put(meActions.setData(data))
+      yield put(
+        NavigationActions.navigate({
+          routeName: 'Home',
+          params: {},
+        }),
+      )
     }
   } catch (error) {
     yield put(meActions.customSet('message', getErrorMessage(error)))
@@ -41,6 +48,12 @@ function* register({ value }) {
 
     if (data) {
       yield put(meActions.setData(data))
+      yield put(
+        NavigationActions.navigate({
+          routeName: 'Home',
+          params: {},
+        }),
+      )
     }
   } catch (error) {
     yield put(meActions.customSet('message', getErrorMessage(error)))

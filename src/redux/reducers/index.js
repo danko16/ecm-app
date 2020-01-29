@@ -1,11 +1,9 @@
 import { combineReducers } from 'redux'
 
-import header from './header'
 import me from './me'
 import navigation from './navigation'
 
 const appReducers = combineReducers({
-  header,
   me,
   navigation,
 })

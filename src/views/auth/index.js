@@ -5,16 +5,18 @@ import {
   TouchableOpacity,
   AppRegistry,
   Animated,
+  Dimensions,
 } from 'react-native'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import Swiper from 'react-native-swiper'
 import Toast from 'react-native-simple-toast'
 
-import { AnimatedView, InputCard, Header } from './components'
+import { AnimatedView, InputCard } from './components'
 import { meActions } from '../../redux/reducers/me'
-import { headerActions } from '../../redux/reducers/header'
 import styles from './styles'
+
+const { height } = Dimensions.get('window')
 
 const mapStateToProps = state => ({
   message: state.me.message,
@@ -26,7 +28,6 @@ const mapDispatchToProps = dispatch =>
       customSet: meActions.customSet,
       loginRequest: meActions.loginRequest,
       registerRequest: meActions.registerRequest,
-      headerPosition: headerActions.customSet,
     },
     dispatch,
   )
@@ -37,9 +38,9 @@ const AuthScreen = props => {
     loginRequest,
     customSet,
     registerRequest,
-    headerPosition,
     message,
   } = props
+  const { mode } = navigation.state.params
 
   let swiper = useRef()
 
@@ -71,19 +72,11 @@ const AuthScreen = props => {
     phone: '',
     password: '',
   })
+  const [headerActive, setHeaderActive] = useState('register')
 
   const [_animatedValue] = useState(new Animated.ValueXY())
 
   useEffect(() => {
-    if (navigation.state.params) {
-      const { targetIndex } = navigation.state.params
-      if (
-        !(swiper.state.index === 0 && targetIndex === -1) &&
-        !(swiper.state.index === 1 && targetIndex === 1)
-      ) {
-        swiper.scrollBy(targetIndex)
-      }
-    }
     if (message) {
       if (message === 'User not found!') {
         setLoginError(prevState => ({
@@ -288,22 +281,68 @@ const AuthScreen = props => {
 
   return (
     <>
+      <View
+        style={{
+          height: height * 0.075,
+          flexDirection: 'row',
+          backgroundColor: '#ffff',
+        }}>
+        <TouchableOpacity
+          onPress={() => {
+            if (swiper.state.index === 1) {
+              swiper.scrollBy(-1)
+            }
+          }}
+          style={{
+            width: '50%',
+            justifyContent: 'center',
+          }}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: headerActive === 'register' ? 'red' : 'grey',
+              alignSelf: 'center',
+            }}>
+            REGISTER
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            if (swiper.state.index === 0) {
+              swiper.scrollBy(1)
+            }
+          }}
+          style={{ width: '50%', justifyContent: 'center' }}>
+          <Text
+            style={{
+              fontSize: 16,
+              color: headerActive === 'login' ? 'red' : 'grey',
+              alignSelf: 'center',
+            }}>
+            LOG IN
+          </Text>
+        </TouchableOpacity>
+      </View>
       <AnimatedView animatedValue={_animatedValue} />
       <Swiper
         style={styles.wrapper}
         showsPagination={false}
         ref={component => (swiper = component)}
+        index={mode && mode === 'login' ? 1 : 0}
         loop={false}
         keyboardShouldPersistTaps={'handled'}
         onScroll={e => {
           let value = e.nativeEvent.contentOffset
+          let middleX = 411.4285583496094 / 2
           _animatedValue.setValue({
             x: value.x / 2,
             y: value.y,
           })
-        }}
-        onMomentumScrollEnd={(e, state, swiper) => {
-          headerPosition('position', `${state.index}`)
+          if (value.x > middleX) {
+            setHeaderActive('login')
+          } else if (value.x < middleX) {
+            setHeaderActive('register')
+          }
         }}>
         <View style={styles.slide1}>
           <InputCard
@@ -466,13 +505,7 @@ const AuthScreen = props => {
 }
 
 AuthScreen.navigationOptions = ({ navigation }) => ({
-  headerTitle: () => null,
-  headerLeft: () => (
-    <Header navigation={navigation} title="Register" targetIndex={-1} />
-  ),
-  headerRight: () => (
-    <Header navigation={navigation} title="Log In" targetIndex={1} />
-  ),
+  headerShown: false,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AuthScreen)
