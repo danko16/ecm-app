@@ -12,6 +12,7 @@ function* login({ value }) {
         email_phone: value.email_phone,
         password: value.password,
         provider: value.provider,
+        client_id: 'app',
       },
     }
 
@@ -40,7 +41,8 @@ function* register({ value }) {
       password: value.password,
       email: value.email,
       phone: value.phone,
-      provider: 'local',
+      provider: value.provider,
+      client_id: 'app',
     }
     const {
       data: { data },

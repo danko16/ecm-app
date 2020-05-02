@@ -275,7 +275,7 @@ const AuthScreen = props => {
         provider: 'local',
       })
     } else if (mode === 'register' && validateRegister()) {
-      registerRequest(registerData)
+      registerRequest({ ...registerData, provider: 'local' })
     }
   }
 
